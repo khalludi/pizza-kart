@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import dayjs from "dayjs";
 import { Order } from "@/types";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -15,7 +15,7 @@ const OrderListItem = ({ order }: OrderListItemProps) => {
 
   return (
     <Link href={`/${segments[0]}/orders/${order.id}`} asChild>
-      <View style={styles.container}>
+      <Pressable onPress={() => {}} style={styles.container}>
         <View>
           <Text style={styles.orderId}>Order #{order.id}</Text>
           <Text style={styles.orderDate}>
@@ -23,7 +23,7 @@ const OrderListItem = ({ order }: OrderListItemProps) => {
           </Text>
         </View>
         <Text style={styles.orderStatus}>{order.status}</Text>
-      </View>
+      </Pressable>
     </Link>
   );
 };

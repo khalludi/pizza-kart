@@ -5,13 +5,11 @@ import OrderListItem from "@components/OrderListItem";
 
 const OrdersScreen = () => {
   return (
-    <ScrollView>
-      <FlatList
-        data={orders}
-        renderItem={({ item }) => <OrderListItem order={item} />}
-        contentContainerStyle={{ gap: 10, padding: 10 }}
-      />
-    </ScrollView>
+    <FlatList
+      data={orders}
+      renderItem={({ item }) => <OrderListItem order={item} />}
+      contentContainerStyle={{ gap: 10, padding: 10 }}
+    />
   );
 };
 
