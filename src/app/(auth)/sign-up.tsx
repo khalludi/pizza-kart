@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
 import Button from "@components/Button";
 import { Link } from "expo-router";
 import Colors from "@/constants/Colors";
@@ -14,6 +14,7 @@ import {
   SignupFormSchema,
 } from "@/app/(auth)/signup-form-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { supabase } from "@/lib/supabase";
 
 const SignUpScreen = () => {
   const methods = useForm<SignupFormSchema>({
@@ -21,9 +22,15 @@ const SignUpScreen = () => {
     mode: "onBlur",
   });
 
-  const onSubmit: SubmitHandler<SignupFormSchema> = (data) => {
-    console.log("onSubmit");
+  const onSubmit: SubmitHandler<SignupFormSchema> = async (data) => {
+    console.log("signUp");
     console.log(JSON.stringify(data));
+
+    const { error } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+    });
+    if (error) Alert.alert(error.message);
   };
 
   const onError: SubmitErrorHandler<SignupFormSchema> = (errors, e) => {
