@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
-import products from "@assets/data/products";
+import products, { defaultPizzaImage } from "@assets/data/products";
 import React, { useState } from "react";
 import { useCart } from "@/providers/CartProvider";
 import { PizzaSize } from "@/types";
@@ -68,7 +68,10 @@ const ProductDetailsScreen = () => {
       />
 
       <Stack.Screen options={{ title: product.name }} />
-      <Image source={{ uri: product.image || "" }} style={styles.image} />
+      <Image
+        source={{ uri: product.image || defaultPizzaImage }}
+        style={styles.image}
+      />
 
       <Text style={styles.title}>{product.name}</Text>
       <Text style={styles.price}>${product.price}</Text>
