@@ -1,32 +1,107 @@
-import { StyleSheet, Text, TextInput, View } from "react-native";
-import { useState } from "react";
+import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
 import Button from "@components/Button";
 import { Link } from "expo-router";
 import Colors from "@/constants/Colors";
+import {
+  Controller,
+  FormProvider,
+  SubmitErrorHandler,
+  SubmitHandler,
+  useForm,
+} from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  signinFormSchema,
+  SigninFormSchema,
+} from "@/app/(auth)/signin-form-schema";
+import { SignupFormSchema } from "@/app/(auth)/signup-form-schema";
+import { supabase } from "@/lib/supabase";
 
 const SignInScreen = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const methods = useForm<SigninFormSchema>({
+    resolver: zodResolver(signinFormSchema),
+    mode: "onBlur",
+  });
+  const { isSubmitting } = methods.formState;
+
+  const onSubmit: SubmitHandler<SignupFormSchema> = async (data) => {
+    return supabase.auth
+      .signInWithPassword({
+        email: data.email,
+        password: data.password,
+      })
+      .then(({ error }) => {
+        if (error) Alert.alert(error.message);
+      });
+  };
+
+  const onError: SubmitErrorHandler<SignupFormSchema> = (errors, _event) => {
+    console.log("onError");
+    console.log(JSON.stringify(errors));
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.inputText}>Email</Text>
-      <TextInput
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        placeholder="jon@example.com"
-        placeholderTextColor="grey"
-      />
+      <FormProvider {...methods}>
+        <Controller
+          control={methods.control}
+          name={"email"}
+          render={({
+            field: { onChange, onBlur, value },
+            fieldState: { error },
+          }) => {
+            return (
+              <>
+                <Text style={styles.inputText}>Email</Text>
+                <TextInput
+                  style={styles.input}
+                  onBlur={onBlur}
+                  value={value}
+                  onChangeText={onChange}
+                  placeholder="jon@example.com"
+                  placeholderTextColor="grey"
+                />
+                {error?.message && (
+                  <Text style={styles.errorText}>{error.message}</Text>
+                )}
+              </>
+            );
+          }}
+        />
+        <View style={styles.spacing} />
 
-      <Text style={styles.inputText}>Password</Text>
-      <TextInput
-        style={[styles.input, { marginBottom: 20 }]}
-        value={password}
-        onChangeText={setPassword}
-      />
+        <Controller
+          control={methods.control}
+          name={"password"}
+          render={({
+            field: { onChange, onBlur, value },
+            fieldState: { error },
+          }) => {
+            return (
+              <>
+                <Text style={styles.inputText}>Password</Text>
+                <TextInput
+                  style={styles.input}
+                  onBlur={onBlur}
+                  value={value}
+                  onChangeText={onChange}
+                  secureTextEntry
+                />
+                {error?.message && (
+                  <Text style={styles.errorText}>{error.message}</Text>
+                )}
+              </>
+            );
+          }}
+        />
+        <View style={styles.margin10} />
 
-      <Button text="Sign in" />
+        <Button
+          text={isSubmitting ? "Signing in ..." : "Sign in"}
+          onPress={methods.handleSubmit(onSubmit, onError)}
+          disabled={isSubmitting}
+        />
+      </FormProvider>
       <Link href={"/sign-up"} style={styles.createAccount}>
         <Text>Create an account</Text>
       </Link>
@@ -52,7 +127,18 @@ const styles = StyleSheet.create({
     borderStyle: "solid",
     borderColor: "lightgrey",
     borderWidth: 1.5,
-    marginBottom: 10,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    marginTop: 2,
+    marginLeft: 2,
+  },
+  spacing: {
+    margin: 5,
+  },
+  margin10: {
+    margin: 10,
   },
   createAccount: {
     marginTop: 5,

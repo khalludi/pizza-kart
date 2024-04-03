@@ -21,19 +21,20 @@ const SignUpScreen = () => {
     resolver: zodResolver(signupFormSchema),
     mode: "onBlur",
   });
+  const { isSubmitting } = methods.formState;
 
   const onSubmit: SubmitHandler<SignupFormSchema> = async (data) => {
-    console.log("signUp");
-    console.log(JSON.stringify(data));
-
-    const { error } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-    });
-    if (error) Alert.alert(error.message);
+    return supabase.auth
+      .signUp({
+        email: data.email,
+        password: data.password,
+      })
+      .then(({ error }) => {
+        if (error) Alert.alert(error.message);
+      });
   };
 
-  const onError: SubmitErrorHandler<SignupFormSchema> = (errors, e) => {
+  const onError: SubmitErrorHandler<SignupFormSchema> = (errors, _event) => {
     console.log("onError");
     console.log(JSON.stringify(errors));
   };
@@ -83,6 +84,7 @@ const SignUpScreen = () => {
                   onBlur={onBlur}
                   value={value}
                   onChangeText={onChange}
+                  secureTextEntry
                 />
                 {error?.message && (
                   <Text style={styles.errorText}>{error.message}</Text>
@@ -94,8 +96,9 @@ const SignUpScreen = () => {
         <View style={styles.margin10} />
 
         <Button
-          text="Create Account"
+          text={isSubmitting ? "Creating account ..." : "Create Account"}
           onPress={methods.handleSubmit(onSubmit, onError)}
+          disabled={isSubmitting}
         />
       </FormProvider>
       <Link href={"/sign-in"} style={styles.createAccount}>
